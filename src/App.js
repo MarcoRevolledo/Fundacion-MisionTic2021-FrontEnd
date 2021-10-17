@@ -1,25 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import React from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import Padrino from "./pages/Padrino";
+import RegistroPadrino from "./pages/RegistroPadrino"
+import Niños from "./pages/Niños"
+import RegistroNiño from "./pages/RegistroNiño";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component{
+  render() {
+    return(
+      <Router>
+        <Switch>
+          <Route path="/" exact component={Home}></Route>
+          <Route path="/dashboard/" exact component={Dashboard}></Route>
+          <Route path="/padrinos/" exact component={Padrino}></Route>
+          <Route path="/crear-padrino/" exact component={RegistroPadrino}></Route>
+          <Route path="/niños/" exact component={Niños}></Route>
+          <Route path="/crear-niño/" exact component={RegistroNiño}></Route>
+
+        </Switch>
+      </Router>
+    )
+    
+  }
 }
 
 export default App;

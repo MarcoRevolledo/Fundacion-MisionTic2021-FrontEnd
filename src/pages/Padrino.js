@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Encabezado from "../componentes/Encabezado";
+import Encabezado from "../componentes/EncabezadoSI";
 import APIInvoke from '../utils/APIInvoke'
+import swal from "sweetalert";
 
 class Padrino extends React.Component{
    
@@ -10,6 +11,8 @@ class Padrino extends React.Component{
         this.state={
             padrinos: []
         }
+
+        this.Remove= this.Remove.bind(this)
     }
 
     async componentDidMount(){
@@ -20,9 +23,29 @@ class Padrino extends React.Component{
         })
     }
 
-    async remove(e, padrino) {
+    async componentDidUpdate(){
+        const response = await APIInvoke.invokeGET("/api/v1/padrinos/")
+        
+        this.setState({
+            padrinos:response
+        })
+    }
+
+    async Remove(e, padrino) {
         e.preventDefault();
-        await APIInvoke.invokeDELETE(`/api/v1/padrinos/${padrino.doc}/`)
+        swal({
+            title:"Eliminar",
+            text:"Estas seguro que desea eliminar el padrino con documento "+padrino.persona.doc,
+            icon: "warning",
+            buttons: ["No","De acuerdo"]
+        }).then(respuesta=>{
+            if(respuesta){
+                APIInvoke.invokeDELETE(`/api/v1/padrinos/${padrino.persona.doc}/`)
+                swal({
+                    text:"El padrino se ha eliminado correctamente",
+                    icon:"success"})
+            }
+        })
     }    
     render(){
 
@@ -36,7 +59,9 @@ class Padrino extends React.Component{
                             <Link to="/crear-padrino/" className="btn btn-primary">Crear Nuevo Padrino</Link>
                         </div>
                         <div>
-                            <table className="table table-bordered table-striped table-hover mt-4">
+                            {
+                                arregloPadrinos.length === 0 ? <div className="alert alert-warning">No existen Registros.</div>:
+                                <table className="table table-bordered table-striped table-hover mt-4">
                                 <thead>
                                     <tr>
                                         <th scope="col">ID</th>
@@ -62,17 +87,18 @@ class Padrino extends React.Component{
                                                 <td>{padrino.persona.direccion}</td>
                                                 <td>{padrino.telefono}</td>
                                                 <td>
-                                                    <button type="button" className="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modaleditar">Editar</button>
-                                                    <button type="button" className="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalasignar">Asignar Niño</button>
-                                                    <button type="button" className="btn btn-outline-primary" onClick={this.remove}>Eliminar</button>
+                                                    <Link type="button" className="btn btn-outline-primary" to={`/editar-padrino/${padrino.persona.doc}`}>Editar</Link>
+                                                    <button type="button" className="btn btn-outline-primary" >Asignar Niño</button>
+                                                    <button type="button" className="btn btn-outline-primary" onClick={(e) => this.Remove(e, padrino)}>Eliminar</button>
                                                 </td>
                                             </tr>
                                         )
                                     }
-                                
-                                    
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+
+                            }
+                            
                         </div>
                     </div>
                 </section>

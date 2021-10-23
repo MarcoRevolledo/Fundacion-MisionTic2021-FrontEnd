@@ -1,9 +1,11 @@
 import React from "react";
-import Encabezado from "../componentes/Encabezado";
+import Encabezado from "../componentes/EncabezadoSI";
 import {Link} from 'react-router-dom'
 
 
 class Dashboard extends React.Component{
+
+    
     render(){
         return(
             <div>
@@ -27,11 +29,11 @@ class Dashboard extends React.Component{
                                 </div>
                             </div>
                             <div className="card m-3">
-                                <Link className="text-decoration-none" href="index.html">
+                                <Link className="text-decoration-none" to="/home/">
                                     {/*<img src={salidaIcon} className="card-img-top" width="18rm" height="" alt="Icono Niños"/>*/}
                                     </Link>
                                 <div className="card-body">
-                                    <Link to="#" className=" text-decoration-none"><h5 class="card-title">Salida Segura</h5></Link>
+                                    <Link to="/" className=" text-decoration-none"><h5 className="card-title">Salida Segura</h5></Link>
                                 </div>
                             </div>
                         </div>

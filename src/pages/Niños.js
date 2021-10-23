@@ -1,7 +1,8 @@
 import React from "react";
-import Encabezado from "../componentes/Encabezado";
+import Encabezado from "../componentes/EncabezadoSI";
 import APIInvoke from "../utils/APIInvoke";
 import { Link } from "react-router-dom";
+import swal from "sweetalert";
 
 
 class Niños extends React.Component{
@@ -13,13 +14,48 @@ class Niños extends React.Component{
     }
 
     async componentDidMount(){
+        try{
+            const response = await APIInvoke.invokeGET("/api/v1/niños/")
+
+            this.setState({
+            niños:response
+        })
+        console.log(this.state.niños)
+
+        }catch(error){
+            console.log(error)
+        }
+        
+    }
+
+    async componentDidUpdate(){
         const response = await APIInvoke.invokeGET("/api/v1/niños/")
         
         this.setState({
             niños:response
         })
-        console.log(this.state.niños)
     }
+
+    Remove(e, niño) {
+
+        e.preventDefault();
+        swal({
+            title:"Eliminar",
+            text:"Estas seguro que desea eliminar el niño con documento "+niño.persona.doc,
+            icon: "warning",
+            buttons: ["No","De acuerdo"]
+        }).then(respuesta=>{
+            if(respuesta){
+                APIInvoke.invokeDELETE(`/api/v1/niños/${niño.persona.doc}/`)
+                swal({
+                    text:"El niño se ha eliminado correctamente",
+                    icon:"success"})
+            }
+        })
+    } 
+
+
+    
 
     render(){
         const arregloNiños=this.state.niños
@@ -29,8 +65,11 @@ class Niños extends React.Component{
                 <div className="container">
                     <div className="d-grid gap-2">
                         <Link className="btn btn-primary" to="/crear-niño/">Crear Nuevo Niño</Link>
+                        <br/>
                     </div>
                     <div>
+                        {
+                        arregloNiños.length === 0 ? <div className="alert alert-warning">No existen Registros.</div>:
                         <table className="table table-bordered table-striped table-hover mt-4">
                             <thead>
                                 <tr>
@@ -45,6 +84,7 @@ class Niños extends React.Component{
                             </thead>
                             <tbody>
                                 {
+                
                                     arregloNiños.map(
                                         niño=>
                                         <tr>
@@ -55,16 +95,18 @@ class Niños extends React.Component{
                                             <td>{niño.persona.direccion}</td>
                                             <td>{niño.contacto_acudiente}</td>
                                             <td>
-                                                <button type="button" className="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modaleditar">Editar</button>
-                                                <button type="button" className="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalasignar">Asignar Padrino</button>
-                                                <button type="button" className="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modaleliminar">Eliminar</button>
+                                                <Link type="button" className="btn btn-outline-primary" to={`/editar-niño/${niño.persona.doc}`}>Editar</Link>
+                                                {/*<button type="button" className="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalasignar">Asignar Padrino</button>*/}
+                                                <button type="button" onClick={(e) => this.Remove(e, niño)} className="btn btn-outline-primary" >Eliminar</button>
                                             </td>
                                         </tr>
                                      )
                                 }
 
                             </tbody>
-                        </table>
+                        </table> 
+                        }
+                    
                     </div>
                 </div>
             </section>

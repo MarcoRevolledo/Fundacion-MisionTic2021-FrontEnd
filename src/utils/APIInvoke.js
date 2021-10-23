@@ -17,18 +17,18 @@ class APIInvoke {
     async invokePUT(resource, body){
         const data = {
             method: 'PUT',
-            body: JSON.stringify(body),
+            body: body,
             headers: {'Content-Type': 'application/json'}
         }
         const url = `${config.api.baseURL}${resource}`
-        let response = (await(await fetch(url, data)).json()) 
+        let response = (await fetch(url, data))
         return response
     }
 
-    async invokePOST(resource, body){
+    async invokePOST(resource, bodyp){
         const data = {
             method: 'POST',
-            body: body,
+            body: bodyp,
             
             headers: {'Content-Type': 'application/json'}
         }

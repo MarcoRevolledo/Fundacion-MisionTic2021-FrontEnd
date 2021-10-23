@@ -1,9 +1,11 @@
-import React from 'react'
-import { Link } from 'react-router-dom';
+import React from 'react';
+import Encabezado from '../componentes/Encabezado';
 import APIInvoke from '../utils/APIInvoke';
+import { Link } from 'react-router-dom';
 import swal from 'sweetalert';
 
-class RegistroNiño extends React.Component{
+class EditarNiño extends React.Component{
+
     constructor(args){
         super(args)
         this.state={
@@ -14,20 +16,33 @@ class RegistroNiño extends React.Component{
             fec_nac:'',
             foto:'',
             direccion:'',
-            fec_registro:'',
             acudiente:'',
             contacto_acudiente:'',
-            indicativo_contacto_acudiente:'',
-
+            fec_registro:''
         }
-        this.handleChangePersona = this.handleChangePersona.bind(this);
-        this.addPersona=this.addPersona.bind(this)
+        this.handleChangePersona= this.handleChangePersona.bind(this)
+        this.editPersona=this.editPersona.bind(this)
     }
-
     async componentDidMount(){
-    
-    }
+        const Niñodoc= this.props.match.params.nino_doc;
+        const response= await APIInvoke.invokeGET(`/api/v1/niños/${Niñodoc}`)
+        console.log(response)
 
+        this.setState({
+            tipo_doc:response.persona.tipo_doc,
+            doc:response.persona.doc,
+            apellido:response.persona.apellido,
+            nombres:response.persona.nombres,
+            fec_nac:response.persona.fec_nac,
+            foto:response.persona.foto,
+            direccion:response.persona.direccion,
+            acudiente:response.acudiente,
+            contacto_acudiente:response.contacto_acudiente,
+            fec_registro:response.persona.fec_registro
+            
+        })
+    }
+    
     handleChangePersona(event){
         const name = event.target.name;
         const value = event.target.value;
@@ -37,56 +52,54 @@ class RegistroNiño extends React.Component{
         });
     }
 
-    async addPersona(){
-
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth() + 1;
-        var yyyy = today.getFullYear();
-
-        if (dd < 10) {
-        dd = '0' + dd;
-        }
-
-        if (mm < 10) {
-        mm = '0' + mm;
-        }
-
-        today = dd + '/' + mm + '/' + yyyy;
-        let data=JSON.stringify({
-           persona:{
-                doc:this.state.doc.toString(),
+    async editPersona(){
+        const data=JSON.stringify({
+            persona:{
+                tipo_doc:this.state.tipo_doc.toString(),
+                doc: this.state.doc.toString(),
                 apellido:this.state.apellido.toString(),
-                direccion:this.state.direccion.toString(),
-                fec_nac:this.state.fec_nac.toString(),
-                fec_registro:today,
-                foto:this.state.foto.toString(),
-                nombres:this.state.nombres.toString(),
-                tipo_doc:this.state.tipo_doc.toString()
-            },
+                nombres: this.state.nombres.toString(),
+                fec_nac: this.state.fec_nac.toString(),
+                fec_registro:this.state.fec_registro.toString(),
+                foto: this.state.foto.toString(),
+                direccion: this.state.direccion.toString(),
+            },      
             acudiente:this.state.acudiente.toString(),
-            contacto_acudiente: this.state.contacto_acudiente.toString(),
-            
-        })
-        const response = await(APIInvoke.invokePOST('/api/v1/niños/', data))
-        if (response.id !== 0){
+            contacto_acudiente:this.state.contacto_acudiente.toString()
+            })
             swal({
-            title:"Guardado!!",
-            text:"Niño Almacenado correctamente",
-            icon: "success",
-            button: ["Continuar navegando"]
-        })
-            this.props.history.push('/niños/')
-        }else{
-            console.log(response.message)
-        }
+                title:"Editar",
+                text:"Estas seguro que desea editar los campos "+this.state.doc,
+                icon: "warning",
+                buttons: ["No","De acuerdo"]
+            }).then(respuesta=>{
+                if(respuesta){
+                    var response = APIInvoke.invokePUT('/api/v1/niños/', data)
+                    
+                }
+                    if (response.id !== 0){
+                        swal({
+                            text:"El niño se ha editado correctamente",
+                            icon:"success"})
+                        this.props.history.push(`/niños/`)
+                    }else{
+                        swal({
+                            text:"Ha ocurrido un error",
+                            icon:"error"})
+                    }
+            })                
+
     }
-    
     render(){
-        return (
-        <div className="container pt-5">  
-            <div className="text-center pb-3"><h5 className="modal-title">Registro niños Beneficiarios</h5></div>
-            
+        return(
+            <div>
+                <Encabezado />
+                <div className="container pt-5">  
+            <div className="text-center pb-3"><h5 className="modal-title">Editar niños Beneficiarios</h5></div>
+            <div className="row aling-rigth">
+                <Link to="/niños/"type="button" className="btn btn-secondary col-auto" >Cerrar</Link>
+                <button onClick={this.addPersona} type="button" className="btn btn-primary col-auto">Guardar</button>
+            </div>
             <form>
             <div className="card">
                 <div className="card-header text-center">Datos del Acudiente</div>
@@ -97,11 +110,8 @@ class RegistroNiño extends React.Component{
                     </div>
                     <div className="mb-3">
                         <label htmlFor="contacto_acudiente" className="col-form-label">Telefono:</label>
-                        <div className="input-group">
-                            <span className="input-group-text">+</span>
-                            <input type="number" className="form-control col-1" id="indicativo_contacto_acudiente" name="indicativo_contacto_acudiente" value={this.state.indicativo_contacto_acudiente} onChange={this.handleChangePersona} />
-                            <input type="tel" className="form-control" id="contacto_acudiente" name="contacto_acudiente" value={this.state.contacto_acudiente} onChange={this.handleChangePersona} />
-                        </div>
+                        <input type="tel" className="form-control" id="contacto_acudiente" name="contacto_acudiente" value={this.state.contacto_acudiente} onChange={this.handleChangePersona} />
+
                     </div>
                 </div>
             </div>
@@ -140,28 +150,28 @@ class RegistroNiño extends React.Component{
 
                                     <div className="mb-3">
                                         <label htmlFor="foto_nino" className="col-form-label">Foto:</label>
-                                        <input type="file" className="form-control" id="foto_nino" name="foto" value={this.state.foto} onChange={this.handleChangePersona} />
+                                        <input type="text" className="form-control" id="foto_nino" name="foto" value={this.state.foto} onChange={this.handleChangePersona} />
                                     </div>
 
                                     <div className="mb-3">
                                         <label htmlFor="direccion_nino" className="col-form-label">Direccion:</label>
                                         <input type="text" className="form-control" id="direccion_nino" name="direccion" value={this.state.direccion} onChange={this.handleChangePersona}/>
                                     </div>
-                                 </div>
+                                </div>
                             </div>
                             
                         </form>
                     <div className="modal-footer">
                         <Link to="/niños/"type="button" className="btn btn-secondary" >Cerrar</Link>
-                        <button onClick={this.addPersona} type="button" className="btn btn-primary">Guardar</button>
+                        <button onClick={this.editPersona} type="button" className="btn btn-primary">Guardar</button>
                     </div>
 
 
             </div>
-
+            </div>
             
-        
-
-        )}
-}
-export default RegistroNiño;
+            
+        );
+    }
+    }
+export default EditarNiño;
